@@ -21,3 +21,4 @@ scikit-learn
 pandas
 requests
 dotenv
+langchain-huggingface
