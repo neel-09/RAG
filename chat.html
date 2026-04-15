@@ -907,7 +907,8 @@ async function sendMessage(){
   setStatus('processing', true);
 
   try{
-    const res = await fetch('http://127.0.0.1:8000/chat', {
+    const BASE_URL = window.location.origin;
+    const res = await fetch(`${BASE_URL}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query, top_k: topK, model, temperature })
