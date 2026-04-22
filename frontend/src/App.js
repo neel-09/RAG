@@ -9,7 +9,6 @@ import './App.css';
 const MODELS = [
   { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B' },
   { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
-  { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B' },
 ];
 
 const SUGGESTED_QUERIES = [

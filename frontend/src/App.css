@@ -4,6 +4,30 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* Floating ambient mesh blobs behind everything */
+.app::before {
+  content: '';
+  position: fixed;
+  top: -20%; left: -15%;
+  width: 55%; height: 65%;
+  background: radial-gradient(ellipse, rgba(59,142,255,0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: meshDrift 14s ease-in-out infinite;
+}
+
+.app::after {
+  content: '';
+  position: fixed;
+  bottom: -15%; right: -10%;
+  width: 50%; height: 60%;
+  background: radial-gradient(ellipse, rgba(155,109,255,0.1) 0%, transparent 68%);
+  pointer-events: none;
+  z-index: 1;
+  animation: meshDrift 18s ease-in-out infinite reverse;
 }
 
 .app-layout {

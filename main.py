@@ -204,8 +204,7 @@ Here is the retrieved knowledge context:
 Instructions:
 1. If the question is factual, answer strictly using the provided context.
 2. If it is a general quantum mechanics question, use your knowledge.
-3. If combining both, clearly state what is from the document vs general knowledge.
-4. If the question is outside your scope, politely refuse.
+3. If the question is outside your scope, politely refuse.
 
 Respond clearly. Use **bold** for key terms."""
 
