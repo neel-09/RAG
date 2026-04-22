@@ -11,3 +11,31 @@ wheels/
 
 # env files
 .env
+
+# Dependencies
+node_modules/
+
+# Production build
+build/
+
+# Environment
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+
+.python-version
+pyproject.toml
+quantum_entanglement.txt
+requirements.txt
+uv.lock
