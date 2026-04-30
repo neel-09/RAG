@@ -1,0 +1,43 @@
+services:
+
+  quantumai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quantumai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+    environment:
+      # ── Required API keys ──────────────────────────────────────────────
+      # Set these in a .env file in the project root (never commit that file)
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+
+      # ── Optional tuning ────────────────────────────────────────────────
+      # Uvicorn log level: debug | info | warning | error
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+    volumes:
+      # Persist Chroma vector DB between restarts so it doesn't re-index on every boot
+      - chroma_data:/app/chroma_db
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s   # give the model/embeddings time to load
+
+    # Cap resource usage — adjust to your machine
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
+
+volumes:
+  chroma_data:
+    driver: local

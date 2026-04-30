@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+.venv/
+venv/
+.env
+
+# Node / React — exclude ONLY node_modules
+# src/ and public/ must be present for npm run build to work
+frontend/node_modules/
+
+# Dev & editor
+.git/
+.gitignore
+.idea/
+.vscode/
+*.ipynb
+*.md
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# uv / pyproject
+uv.lock
+pyproject.toml
+.python-version
