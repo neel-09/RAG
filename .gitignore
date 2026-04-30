@@ -39,3 +39,4 @@ pyproject.toml
 quantum_entanglement.txt
 requirements.txt
 uv.lock
+rag_implementation.ipynb
