@@ -37,6 +37,6 @@ yarn-error.log*
 .python-version
 pyproject.toml
 
-requirements.txt
+
 uv.lock
 rag_implementation.ipynb
