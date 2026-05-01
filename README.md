@@ -1,3 +1,13 @@
+---
+title: QuantumAI
+emoji: ⚛️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # QuantumAI — RAG Pipeline with Groq LLM
 
 A Retrieval-Augmented Generation (RAG) pipeline built with LangChain and Groq, specialized as **QuantumAI** — an AI assistant dedicated exclusively to quantum mechanics and quantum entanglement topics. Includes a FastAPI backend and an interactive web chat UI.
