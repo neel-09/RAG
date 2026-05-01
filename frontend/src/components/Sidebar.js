@@ -1,10 +1,21 @@
 import React from 'react';
 import './Sidebar.css';
 
-export default function Sidebar({ open, chatHistory, onNewChat, onSelectChat, config, setConfig, models }) {
+export default function Sidebar({ open, isMobile, chatHistory, onNewChat, onSelectChat, config, setConfig, models, onClose }) {
+  const mobileClass = isMobile ? 'sidebar--mobile' : '';
+  const openClass = open ? 'sidebar--open' : 'sidebar--closed';
+
   return (
-    <aside className={`sidebar ${open ? 'sidebar--open' : 'sidebar--closed'}`}>
+    <aside className={`sidebar ${mobileClass} ${openClass}`}>
       <div className="sidebar__header">
+        {isMobile && (
+          <button className="sidebar__close" onClick={onClose} aria-label="Close sidebar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
         <button className="sidebar__new-chat" onClick={onNewChat}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
@@ -56,9 +67,7 @@ export default function Sidebar({ open, chatHistory, onNewChat, onSelectChat, co
           <input
             type="range"
             className="sidebar__range"
-            min="0"
-            max="1"
-            step="0.1"
+            min="0" max="1" step="0.1"
             value={config.temperature}
             onChange={e => setConfig(c => ({ ...c, temperature: parseFloat(e.target.value) }))}
           />
@@ -76,9 +85,7 @@ export default function Sidebar({ open, chatHistory, onNewChat, onSelectChat, co
           <input
             type="range"
             className="sidebar__range"
-            min="1"
-            max="6"
-            step="1"
+            min="1" max="6" step="1"
             value={config.topK}
             onChange={e => setConfig(c => ({ ...c, topK: parseInt(e.target.value) }))}
           />
