@@ -1,6 +1,5 @@
 .app {
   height: 100vh;
-  height: 100dvh; /* dynamic viewport height - fixes mobile browser chrome */
   display: flex;
   flex-direction: column;
   position: relative;
@@ -28,17 +27,6 @@
   pointer-events: none;
   z-index: 1;
   animation: meshDrift 18s ease-in-out infinite reverse;
-}
-
-/* Mobile sidebar backdrop */
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 20;
-  animation: fadeIn 0.2s ease;
 }
 
 .app-layout {

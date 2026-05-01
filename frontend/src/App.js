@@ -30,28 +30,12 @@ export default function App() {
     topK: 3,
   });
   const [status, setStatus] = useState('idle');
-  const [sidebarOpen, setSidebarOpen] = useState(false); // closed by default on mobile
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [chatHistory, setChatHistory] = useState([
     { id: 1, title: 'Current Session', active: true, time: 'Now' },
   ]);
   const abortRef = useRef(null);
 
-  // Detect mobile
-  useEffect(() => {
-    const check = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      // Auto-open sidebar on desktop, close on mobile
-      if (!mobile) setSidebarOpen(true);
-      else setSidebarOpen(false);
-    };
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  // Health-check on mount
   useEffect(() => {
     fetch('/health')
       .then(r => r.json())
@@ -61,9 +45,6 @@ export default function App() {
 
   const sendMessage = useCallback(async (query) => {
     if (!query.trim() || isLoading) return;
-
-    // Close sidebar on mobile when sending
-    if (isMobile) setSidebarOpen(false);
 
     const userMsg = {
       id: Date.now(),
@@ -124,7 +105,7 @@ export default function App() {
       setIsLoading(false);
       setStatus('ready');
     }
-  }, [isLoading, config, messages.length, isMobile]);
+  }, [isLoading, config, messages.length]);
 
   const newChat = () => {
     setMessages([]);
@@ -134,47 +115,34 @@ export default function App() {
       { id: newId, title: 'New Chat', active: true, time: 'Now' },
       ...prev.map(c => ({ ...c, active: false })),
     ]);
-    if (isMobile) setSidebarOpen(false);
   };
-
-  const toggleSidebar = () => setSidebarOpen(o => !o);
 
   return (
     <div className="app">
       <ParticleCanvas />
-
-      {/* Mobile overlay backdrop */}
-      {isMobile && sidebarOpen && (
-        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
-      )}
-
       <div className="app-layout">
         <Sidebar
           open={sidebarOpen}
-          isMobile={isMobile}
           chatHistory={chatHistory}
           onNewChat={newChat}
-          onSelectChat={() => { if (isMobile) setSidebarOpen(false); }}
+          onSelectChat={() => {}}
           config={config}
           setConfig={setConfig}
           models={MODELS}
-          onClose={() => setSidebarOpen(false)}
         />
         <div className="app-main">
           <Header
             status={status}
             model={config.model}
             models={MODELS}
-            onToggleSidebar={toggleSidebar}
+            onToggleSidebar={() => setSidebarOpen(o => !o)}
             sidebarOpen={sidebarOpen}
-            isMobile={isMobile}
           />
           <ChatArea
             messages={messages}
             isLoading={isLoading}
             suggestedQueries={SUGGESTED_QUERIES}
             onSuggestedQuery={sendMessage}
-            isMobile={isMobile}
           />
           <InputBar
             onSend={sendMessage}
@@ -182,7 +150,6 @@ export default function App() {
             config={config}
             setConfig={setConfig}
             models={MODELS}
-            isMobile={isMobile}
           />
         </div>
       </div>
