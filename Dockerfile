@@ -45,7 +45,5 @@ USER appuser
 # Chroma persists to this dir at runtime — make sure it exists
 RUN mkdir -p /app/chroma_db
 
-EXPOSE 8000
-
-# Use uvicorn directly; --host 0.0.0.0 required inside Docker
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+EXPOSE 7860
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
