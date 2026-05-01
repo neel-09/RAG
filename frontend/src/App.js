@@ -5,7 +5,7 @@ import ChatArea from './components/ChatArea';
 import InputBar from './components/InputBar';
 import ParticleCanvas from './components/ParticleCanvas';
 import './App.css';
-import { isMobile } from 'react-device-detect';
+
 
 const MODELS = [
   { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B' },
@@ -50,66 +50,69 @@ export default function App() {
     // Close sidebar on mobile when sending
     if (isMobile) setSidebarOpen(false);
 
-    const userMsg = {
-      id: Date.now(),
-      role: 'user',
-      content: query,
+    // Removed the line: if (isMobile) setSidebarOpen(false);
+
+  const userMsg = {
+    id: Date.now(),
+    role: 'user',
+    content: query,
+    timestamp: new Date(),
+  };
+
+  setMessages(prev => [...prev, userMsg]);
+  setIsLoading(true);
+  setStatus('processing');
+
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        top_k: config.topK,
+        model: config.model,
+        temperature: config.temperature,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    const aiMsg = {
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: data.answer,
+      chunksRetrieved: data.chunks_retrieved,
+      chunksPreview: data.chunks_preview,
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMsg]);
-    setIsLoading(true);
-    setStatus('processing');
+    setMessages(prev => [...prev, aiMsg]);
 
-    try {
-      const res = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query,
-          top_k: config.topK,
-          model: config.model,
-          temperature: config.temperature,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.detail || `HTTP ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      const aiMsg = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: data.answer,
-        chunksRetrieved: data.chunks_retrieved,
-        chunksPreview: data.chunks_preview,
-        timestamp: new Date(),
-      };
-
-      setMessages(prev => [...prev, aiMsg]);
-
-      if (messages.length === 0) {
-        setChatHistory(prev =>
-          prev.map(c => c.active ? { ...c, title: query.slice(0, 40) + (query.length > 40 ? '…' : '') } : c)
-        );
-      }
-    } catch (err) {
-      const errMsg = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: `**Error:** ${err.message}`,
-        isError: true,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errMsg]);
-    } finally {
-      setIsLoading(false);
-      setStatus('ready');
+    if (messages.length === 0) {
+      setChatHistory(prev =>
+        prev.map(c => c.active ? { ...c, title: query.slice(0, 40) + (query.length > 40 ? '...' : '') } : c)
+      );
     }
-  }, [isLoading, config, messages.length, isMobile]);
+  } catch (err) {
+    const errMsg = {
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: `**Error:** ${err.message}`,
+      isError: true,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, errMsg]);
+  } finally {
+    setIsLoading(false);
+    setStatus('ready');
+  }
+}, [setIsLoading, setStatus, setMessages, setChatHistory, config, messages.length]); 
+// ^ isMobile has been removed from this dependency array
 
   const newChat = () => {
     setMessages([]);
