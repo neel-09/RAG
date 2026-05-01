@@ -9,6 +9,7 @@ import './App.css';
 const MODELS = [
   { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B' },
   { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
+  { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B' },
 ];
 
 const SUGGESTED_QUERIES = [
@@ -28,12 +29,27 @@ export default function App() {
     temperature: 0.1,
     topK: 3,
   });
-  const [status, setStatus] = useState('idle'); // idle | ready | processing
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [status, setStatus] = useState('idle');
+  const [sidebarOpen, setSidebarOpen] = useState(false); // closed by default on mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [chatHistory, setChatHistory] = useState([
     { id: 1, title: 'Current Session', active: true, time: 'Now' },
   ]);
   const abortRef = useRef(null);
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Auto-open sidebar on desktop, close on mobile
+      if (!mobile) setSidebarOpen(true);
+      else setSidebarOpen(false);
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Health-check on mount
   useEffect(() => {
@@ -45,6 +61,9 @@ export default function App() {
 
   const sendMessage = useCallback(async (query) => {
     if (!query.trim() || isLoading) return;
+
+    // Close sidebar on mobile when sending
+    if (isMobile) setSidebarOpen(false);
 
     const userMsg = {
       id: Date.now(),
@@ -87,7 +106,6 @@ export default function App() {
 
       setMessages(prev => [...prev, aiMsg]);
 
-      // Update chat history title with first message
       if (messages.length === 0) {
         setChatHistory(prev =>
           prev.map(c => c.active ? { ...c, title: query.slice(0, 40) + (query.length > 40 ? '…' : '') } : c)
@@ -106,7 +124,7 @@ export default function App() {
       setIsLoading(false);
       setStatus('ready');
     }
-  }, [isLoading, config, messages.length]);
+  }, [isLoading, config, messages.length, isMobile]);
 
   const newChat = () => {
     setMessages([]);
@@ -116,34 +134,47 @@ export default function App() {
       { id: newId, title: 'New Chat', active: true, time: 'Now' },
       ...prev.map(c => ({ ...c, active: false })),
     ]);
+    if (isMobile) setSidebarOpen(false);
   };
+
+  const toggleSidebar = () => setSidebarOpen(o => !o);
 
   return (
     <div className="app">
       <ParticleCanvas />
+
+      {/* Mobile overlay backdrop */}
+      {isMobile && sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
+
       <div className="app-layout">
         <Sidebar
           open={sidebarOpen}
+          isMobile={isMobile}
           chatHistory={chatHistory}
           onNewChat={newChat}
-          onSelectChat={() => {}}
+          onSelectChat={() => { if (isMobile) setSidebarOpen(false); }}
           config={config}
           setConfig={setConfig}
           models={MODELS}
+          onClose={() => setSidebarOpen(false)}
         />
         <div className="app-main">
           <Header
             status={status}
             model={config.model}
             models={MODELS}
-            onToggleSidebar={() => setSidebarOpen(o => !o)}
+            onToggleSidebar={toggleSidebar}
             sidebarOpen={sidebarOpen}
+            isMobile={isMobile}
           />
           <ChatArea
             messages={messages}
             isLoading={isLoading}
             suggestedQueries={SUGGESTED_QUERIES}
             onSuggestedQuery={sendMessage}
+            isMobile={isMobile}
           />
           <InputBar
             onSend={sendMessage}
@@ -151,6 +182,7 @@ export default function App() {
             config={config}
             setConfig={setConfig}
             models={MODELS}
+            isMobile={isMobile}
           />
         </div>
       </div>
