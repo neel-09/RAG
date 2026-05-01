@@ -5,6 +5,7 @@ import ChatArea from './components/ChatArea';
 import InputBar from './components/InputBar';
 import ParticleCanvas from './components/ParticleCanvas';
 import './App.css';
+import { isMobile } from 'react-device-detect';
 
 const MODELS = [
   { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B' },
