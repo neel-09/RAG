@@ -46,6 +46,9 @@ export default function App() {
   const sendMessage = useCallback(async (query) => {
     if (!query.trim() || isLoading) return;
 
+    // Close sidebar on mobile when sending
+    if (isMobile) setSidebarOpen(false);
+
     const userMsg = {
       id: Date.now(),
       role: 'user',
@@ -105,7 +108,7 @@ export default function App() {
       setIsLoading(false);
       setStatus('ready');
     }
-  }, [isLoading, config, messages.length]);
+  }, [isLoading, config, messages.length, isMobile]);
 
   const newChat = () => {
     setMessages([]);
@@ -115,34 +118,47 @@ export default function App() {
       { id: newId, title: 'New Chat', active: true, time: 'Now' },
       ...prev.map(c => ({ ...c, active: false })),
     ]);
+    if (isMobile) setSidebarOpen(false);
   };
+
+  const toggleSidebar = () => setSidebarOpen(o => !o);
 
   return (
     <div className="app">
       <ParticleCanvas />
+
+      {/* Mobile overlay backdrop */}
+      {isMobile && sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
+
       <div className="app-layout">
         <Sidebar
           open={sidebarOpen}
+          isMobile={isMobile}
           chatHistory={chatHistory}
           onNewChat={newChat}
-          onSelectChat={() => {}}
+          onSelectChat={() => { if (isMobile) setSidebarOpen(false); }}
           config={config}
           setConfig={setConfig}
           models={MODELS}
+          onClose={() => setSidebarOpen(false)}
         />
         <div className="app-main">
           <Header
             status={status}
             model={config.model}
             models={MODELS}
-            onToggleSidebar={() => setSidebarOpen(o => !o)}
+            onToggleSidebar={toggleSidebar}
             sidebarOpen={sidebarOpen}
+            isMobile={isMobile}
           />
           <ChatArea
             messages={messages}
             isLoading={isLoading}
             suggestedQueries={SUGGESTED_QUERIES}
             onSuggestedQuery={sendMessage}
+            isMobile={isMobile}
           />
           <InputBar
             onSend={sendMessage}
@@ -150,6 +166,7 @@ export default function App() {
             config={config}
             setConfig={setConfig}
             models={MODELS}
+            isMobile={isMobile}
           />
         </div>
       </div>
