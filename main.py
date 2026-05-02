@@ -165,6 +165,10 @@ embeddings = HuggingFaceEmbeddings(
 vectorstore = Chroma.from_documents(chunks, embeddings)
 retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
+import re
+headings = re.findall(r'^[A-Z][A-Z\s\(\)\/\-]{4,}$', documents[0].page_content, re.MULTILINE)
+knowledge_scope = "\n".join(f"- {h.strip().title()}" for h in headings[:20] if h.strip())
+
 print(f"Knowledge base ready. {len(chunks)} chunks indexed.")
 
 # ── LLM ──
@@ -191,24 +195,21 @@ def chat(req: QueryRequest):
 
     system_prompt = f"""You are QuantumAI, an AI assistant exclusively dedicated to quantum mechanics and quantum information science.
 
-Your knowledge scope is strictly limited to:
-- Quantum entanglement theory, history, and experimental evidence
-- Bell's theorem, Bell inequalities, and EPR paradox
-- Quantum information science: teleportation, cryptography, and computing
-- Quantum hardware: ion traps, superconducting qubits, photonic systems
-- Decoherence, entanglement entropy, and quantum error correction
+Your knowledge base covers the following topics:
+{knowledge_scope}
 
-You are NOT permitted to answer questions outside this scope under any circumstances.
+You are NOT permitted to answer questions completely unrelated to quantum physics (e.g. cooking, geography, sports).
 
-Here is the retrieved knowledge context:
+Here is the retrieved context for this query:
 {context}
 
 Instructions:
-1. If the question is factual, answer strictly using the provided context.
-2. If it is a general quantum mechanics question, use your knowledge.
-3. If the question is outside your scope, politely refuse.
+1. If the question is covered in the retrieved context, use it as your primary source.
+2. If it is a general quantum mechanics question not in the context, use your own knowledge.
+3. If combining both, clearly state what comes from the document vs general knowledge.
+4. Only refuse if the question is genuinely outside quantum physics entirely.
 
-Respond clearly. Use **bold** for key terms."""
+Respond clearly and in depth. Use **bold** for key terms."""
 
     dynamic_llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
